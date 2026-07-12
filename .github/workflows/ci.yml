@@ -91,6 +91,9 @@ jobs:
           key: ${{ secrets.VM_SSH_KEY }}
           script: |
             sudo kubectl rollout restart deployment/game-api -n mindsprint
-            sudo kubectl rollout restart deployment/analytics-api -n mindsprint
+            sleep 60
             sudo kubectl rollout restart deployment/frontend -n mindsprint
+            sleep 60
+            sudo kubectl rollout restart deployment/analytics-api -n mindsprint
+            sleep 60
             sudo kubectl rollout restart deployment/redis -n mindsprint
