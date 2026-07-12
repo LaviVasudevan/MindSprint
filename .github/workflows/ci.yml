@@ -96,4 +96,3 @@ jobs:
             sleep 60
             sudo kubectl rollout restart deployment/analytics-api -n mindsprint
             sleep 60
-            sudo kubectl rollout restart deployment/redis -n mindsprint
