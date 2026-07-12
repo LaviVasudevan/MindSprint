@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: analytics-api
+  namespace: mindsprint
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: analytics-api
+  template:
+    metadata:
+      labels:
+        app: analytics-api
+    spec:
+      containers:
+        - name: analytics-api
+          image: ghcr.io/lavivasudevan/mindsprint-analytics-api:latest
+          ports:
+            - containerPort: 8001
+          env:
+            - name: REDIS_URL
+              valueFrom:
+                secretKeyRef:
+                  name: mindsprint-secrets
+                  key: REDIS_URL
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: analytics-api-service
+  namespace: mindsprint
+spec:
+  selector:
+    app: analytics-api
+  ports:
+    - port: 8001
+      targetPort: 8001

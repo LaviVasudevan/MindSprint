@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: game-api
+  namespace: mindsprint
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: game-api
+  template:
+    metadata:
+      labels:
+        app: game-api
+    spec:
+      containers:
+        - name: game-api
+          image: ghcr.io/lavivasudevan/mindsprint-game-api:latest
+          ports:
+            - containerPort: 8000
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: mindsprint-secrets
+                  key: DATABASE_URL
+            - name: REDIS_URL
+              valueFrom:
+                secretKeyRef:
+                  name: mindsprint-secrets
+                  key: REDIS_URL
+            - name: ANALYTICS_URL
+              valueFrom:
+                secretKeyRef:
+                  name: mindsprint-secrets
+                  key: ANALYTICS_URL
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: game-api-service
+  namespace: mindsprint
+spec:
+  selector:
+    app: game-api
+  ports:
+    - port: 8000
+      targetPort: 8000

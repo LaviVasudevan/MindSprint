@@ -113,7 +113,7 @@ def end_game(session_id: str, db: Session = Depends(get_db)):
     "difficulty": session["difficulty"],
     "score": session["score"],
     "accuracy": round(accuracy, 4)
-n   })
+   })
 
     rd.zadd("leaderboard", {session_id: session["score"]})
 
