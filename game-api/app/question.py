@@ -1,5 +1,6 @@
 import random
 
+
 def generate_question(difficulty: str) -> dict:
     if difficulty == "easy":
         a, b = random.randint(1, 20), random.randint(1, 20)

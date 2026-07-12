@@ -18,18 +18,25 @@ rd = redis.from_url(os.getenv("REDIS_URL", "redis://localhost:6379"))
 
 ANALYTICS_URL = os.getenv("ANALYTICS_URL", "http://localhost:8001")
 
+
 def send_event(payload: dict):
     try:
-        httpx.post(f"{ANALYTICS_URL}/analytics/events", json=payload, timeout=0.5)
+        httpx.post(
+            f"{ANALYTICS_URL}/analytics/events",
+            json=payload,
+            timeout=0.5)
     except Exception:
         pass
+
 
 class StartRequest(BaseModel):
     difficulty: str
 
+
 class AnswerRequest(BaseModel):
     session_id: str
     answer: int
+
 
 @router.post("/start")
 def start_game(body: StartRequest):
@@ -44,8 +51,13 @@ def start_game(body: StartRequest):
         "correct": 0,
         "current_answer": first_question["answer"]
     }
-    rd.setex(f"session:{session_id}", GAME_DURATION + 10, json.dumps(session_data))
-    return {"session_id": session_id, "question": first_question["question"], "duration": GAME_DURATION}
+    rd.setex(
+        f"session:{session_id}",
+        GAME_DURATION + 10,
+        json.dumps(session_data))
+    return {"session_id": session_id,
+            "question": first_question["question"], "duration": GAME_DURATION}
+
 
 @router.get("/question")
 def get_question(session_id: str):
@@ -59,7 +71,9 @@ def get_question(session_id: str):
     q = generate_question(session["difficulty"])
     session["current_answer"] = q["answer"]
     rd.setex(f"session:{session_id}", GAME_DURATION + 10, json.dumps(session))
-    return {"question": q["question"], "time_remaining": round(GAME_DURATION - elapsed)}
+    return {"question": q["question"],
+            "time_remaining": round(GAME_DURATION - elapsed)}
+
 
 @router.post("/answer")
 def submit_answer(body: AnswerRequest):
@@ -81,14 +95,19 @@ def submit_answer(body: AnswerRequest):
         session["score"] = max(0, session["score"] - 2)
     q = generate_question(session["difficulty"])
     session["current_answer"] = q["answer"]
-    rd.setex(f"session:{body.session_id}", GAME_DURATION + 10, json.dumps(session))
+    rd.setex(
+        f"session:{
+            body.session_id}",
+        GAME_DURATION + 10,
+        json.dumps(session))
     send_event({
-    "event_type": "answer_submitted",
-    "question": body.answer,
-    "correct": correct
+        "event_type": "answer_submitted",
+        "question": body.answer,
+        "correct": correct
     })
     return {"correct": correct, "score": session["score"], "streak": session["streak"],
             "next_question": q["question"], "time_remaining": round(GAME_DURATION - elapsed)}
+
 
 @router.post("/end")
 def end_game(session_id: str, db: Session = Depends(get_db)):
@@ -97,7 +116,8 @@ def end_game(session_id: str, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Session not found")
     session = json.loads(raw)
     rd.delete(f"session:{session_id}")
-    accuracy = session["correct"] / session["total"] if session["total"] > 0 else 0
+    accuracy = session["correct"] / \
+        session["total"] if session["total"] > 0 else 0
 
     game = Game(
         difficulty=session["difficulty"],
@@ -109,16 +129,17 @@ def end_game(session_id: str, db: Session = Depends(get_db)):
     db.commit()
 
     send_event({
-    "event_type": "game_ended",
-    "difficulty": session["difficulty"],
-    "score": session["score"],
-    "accuracy": round(accuracy, 4)
-   })
+        "event_type": "game_ended",
+        "difficulty": session["difficulty"],
+        "score": session["score"],
+        "accuracy": round(accuracy, 4)
+    })
 
     rd.zadd("leaderboard", {session_id: session["score"]})
 
     return {"score": session["score"], "accuracy": round(accuracy * 100, 1),
             "correct": session["correct"], "total": session["total"]}
+
 
 @router.get("/leaderboard")
 def get_leaderboard():
