@@ -16,6 +16,7 @@ spec:
       containers:
         - name: analytics-api
           image: ghcr.io/lavivasudevan/mindsprint-analytics-api:latest
+          imagePullPolicy: Always
           ports:
             - containerPort: 8001
           env:
