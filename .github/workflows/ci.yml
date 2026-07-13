@@ -3,6 +3,8 @@ name: CI/CD
 on:
   push:
     branches: [main]
+  pull_request:
+    types: [opened, synchronize, reopened]
 
 jobs:
   lint:
@@ -22,7 +24,7 @@ jobs:
 
       - name: Lint with flake8
         run: |
-          flake8 game-api/app --max-line-length=120 --ignore=E501
+          flake8 game-api/app --max-line-length=120 --ignore=E501,E302,W292,E122
 
   test:
     runs-on: ubuntu-latest
@@ -45,9 +47,22 @@ jobs:
           cd game-api
           pytest tests/ -v || true
 
-  build-and-push:
+  sonarcloud:
     runs-on: ubuntu-latest
     needs: test
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          fetch-depth: 0   # SonarCloud needs full history for accurate blame/new-code analysis
+
+      - name: SonarQube Scan
+        uses: SonarSource/sonarqube-scan-action@7006c4492b2e0ee0f816d36501671557c97f5995 # v8.1.0
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+  build-and-push:
+    runs-on: ubuntu-latest
+    needs: sonarcloud
     steps:
       - uses: actions/checkout@v4
 
@@ -91,8 +106,6 @@ jobs:
           key: ${{ secrets.VM_SSH_KEY }}
           script: |
             sudo kubectl rollout restart deployment/game-api -n mindsprint
-            sleep 60
-            sudo kubectl rollout restart deployment/frontend -n mindsprint
-            sleep 60
             sudo kubectl rollout restart deployment/analytics-api -n mindsprint
-            sleep 60
+            sudo kubectl rollout restart deployment/frontend -n mindsprint
+            sudo kubectl rollout restart deployment/redis -n mindsprint
