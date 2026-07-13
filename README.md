@@ -11,6 +11,7 @@ A mental math battle game built as an end-to-end DevOps learning project — one
 MindSprint is a 60-second mental math game. Pick a difficulty, answer as many questions as you can before the timer runs out, build streaks for bonus points, and land on the leaderboard.
 
 The game itself is intentionally simple. It exists to be the smallest possible product sitting on top of the largest possible amount of real infrastructure — frontend, backend, database, cache, containerisation, orchestration, CI/CD, and cloud deployment, all wired together and deployed for real.
+
 ---
 
 ## How it works
