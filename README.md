@@ -142,4 +142,4 @@ TLS/HTTPS was scoped out for this deployment — cert-manager would add further 
 
 ## Blog series
 
-This project is documented in full as a blog series covering each phase — the reasoning, the mistakes, and the fixes: [Medium](https://medium.com/@techwomanspeaks)
+This project is documented in full as a blog series covering each phase — the reasoning, the mistakes, and the fixes: [Medium](https://medium.com/@ctypecharger/mindsprint-4ecc317377a9?sharedUserId=ctypecharger).
