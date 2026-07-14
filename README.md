@@ -1,5 +1,3 @@
-# MindSprint
-
 A mental math battle game built as an end-to-end DevOps learning project — one small application, deployed through every layer of a real production system.
 
 **Play it (when the cluster is up):** `http://mindsprint.duckdns.org:31666`
@@ -41,6 +39,8 @@ Nginx Ingress Controller  (Kubernetes)
                PostgreSQL            Redis
           (games, users — persisted)  (sessions, leaderboard, event log)
 ```
+
+<img width="3748" height="2076" alt="phase 9" src="https://github.com/user-attachments/assets/97519125-7284-42e7-8b19-097ded8a1f97" /># MindSprint
 
 Two backend services rather than one, on purpose — the game API owns gameplay and scoring; the analytics API owns events and stats. They're independently deployable and don't share code, only a Redis instance.
 
